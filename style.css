@@ -1,0 +1,42 @@
+#TopRod{
+    height: 20px;
+    width: 15vw;
+    position: absolute;
+    top: 0%;
+    left:50%;
+    color: white;
+    background-color: blue;
+    transform: translateX(-50%);
+    border-radius: 10px;
+}
+
+#BottomRod{
+    height: 20px;
+    width: 15vw;
+    position: absolute;
+    left:50%;
+    top: 90%;
+    background-color: blueviolet;
+    transform: translateX(-50%);
+    border-radius:10px;
+}
+
+#Ball{
+    height: 15px;
+    width: 15px;
+    border-radius: 50%;
+    background-color: red;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 90%;
+    transform: translateY(-100%);
+}
+
+.rod-title{
+    text-align: center;
+    color: white;
+    position: absolute;
+    left:50%;
+    transform: translateX(-50%);
+}
