@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+    <div id="TopRod">
+        <span class="rod-title">Rod 1</span>
+    </div>
+    <div id="BottomRod">
+        <span class="rod-title">Rod 2</span>
+    </div>
+    <div id="Ball">
+
+    </div>  
+    <script>
+        var Rod1 = document.getElementById("TopRod");
+        var Rod2 = document.getElementById("BottomRod");
+        var ball = document.getElementById("Ball");
+        //console.log('Running');
+        var leftPress = false;
+        var rightPress = false;
+        var Enterpress = false;
+
+        var rod1pts = 0, rod2pts = 0;
+
+        //console.log(getComputedStyle(Rod1).getPropertyValue('left'));
+
+        document.addEventListener("keydown", (event)=>{
+            if(event.key == 'a'){
+                leftPress = true;
+            }
+            else if(event.key == 'd'){
+                rightPress = true;
+            }
+        });
+
+        document.addEventListener("keyup", (event)=>{
+            if(event.key == 'a'){
+                leftPress = false;
+            }
+            else if(event.key == 'd'){
+                rightPress = false;
+            }
+        });
+
+        document.addEventListener("keypress", function(event){
+            //console.log('key pressed');
+            if(event.keyCode == 13){
+                Enterpress = true;
+                //console.log('Enter key pressed.')
+                //console.log(Enterpress + '<- Enterpress');
+            }
+        })
+
+        //To return the left distance of the element
+        function getleftDist(name){
+            return Number(getComputedStyle(name).getPropertyValue('left').split('p')[0]);
+            //Note - Rod1.style.left is not working - returning a empty string.
+        }
+        //To get the top distance of element.
+        function gettopDist(name){
+            return Number(getComputedStyle(name).getPropertyValue('top').split('p')[0]);
+        }
+        //To get the width of the element.
+        function getwidth(name){
+            return Number(getComputedStyle(name).getPropertyValue('width').split('p')[0]);
+        }
+        //To get the height of element.
+        function getheight(name){
+            return Number(getComputedStyle(name).getPropertyValue('height').split('p')[0]);
+        }
+
+        function collision(rod, ball){
+            var case1, case2, case3;
+            case1 = (getleftDist(ball) + getwidth(ball)/2 >= getleftDist(rod)) && (getleftDist(ball) < getleftDist(rod));
+            case2 = (getleftDist(ball) - getwidth(ball)/2 <= getleftDist(rod)) && (getleftDist(ball) > getleftDist(rod));
+            case3 = (getleftDist(ball) >= (getleftDist(rod) - getwidth(rod)/2)) && (getleftDist(ball) <= (getleftDist(rod) + getwidth(rod)/2))
+            return case1 || case2 || case3;
+        }
+        var ID;
+        function gameLost(){
+            clearInterval(ID);
+            Rod1.style.left = '50%';
+            Rod2.style.left = '50%';
+            ball.style.left = '50%';
+            if(rod1pts > Number(localStorage.getItem("maxrod1"))){
+                localStorage.setItem("maxrod1", String(rod1pts));
+            }
+            if(rod2pts > Number(localStorage.getItem("maxrod2"))){
+                localStorage.setItem("maxrod2", String(rod2pts));
+            }
+            localStorage.setItem("maxscore", String(Math.max(Number(localStorage.getItem("maxrod1")), Number(localStorage.getItem("maxrod2")))));
+            //alert('You Lost! Better luck next time.');
+            if(rod1pts > rod2pts){alert('Rod 1 wins with a score of '+rod1pts+'.Max score is '+localStorage.getItem("maxscore"));ball.style.top = '90%';}
+            else if(rod1pts < rod2pts){alert('Rod 2 wins with a score of '+rod2pts+'.Max score is '+localStorage.getItem("maxscore"));ball.style.top = `${2*getheight(Rod1) + gettopDist(Rod1)}px`;}
+            else {alert('Tie Match! Max score is '+localStorage.getItem("maxscore"));ball.style.top = `${2*getheight(Rod1) + gettopDist(Rod1)}px`;}
+            leftPress = rightPress = Enterpress = false;
+            setTimeout(gameplay, 500);
+            return;
+        }
+
+        function gameplay(){
+            //console.log(localStorage.getItem("maxrod1"));
+            //console.log(localStorage.getItem("maxrod2"));
+            //console.log(localStorage.getItem("maxscore"));
+            if(localStorage.getItem("maxscore") == null){
+                alert('This is your first time');
+                localStorage.setItem("maxrod1", "0");
+                localStorage.setItem("maxrod2", "0");
+            }
+            else{
+                if(localStorage.getItem("maxscore") == localStorage.getItem("maxrod1"))alert("Rod 1 has a maximum score of "+localStorage.getItem("maxscore"));
+                else alert("Rod 2 has a maximum score of "+localStorage.getItem("maxscore"));
+            }
+            /*document.addEventListener("keypress", function(event){
+                if(event == 'enter'){
+                    
+                }
+            })*/
+            
+            var Vx = 1.5, Vy = -1.5;
+            rod1pts = 0;
+            rod2pts = 0;
+            //console.log('Start');
+            //console.log(Enterpress);
+            
+            ID = setInterval(function(){
+                if(Enterpress){
+                    if(leftPress && getleftDist(Rod1) > (getwidth(Rod1)/2)){
+                        Rod1.style.left = `${getleftDist(Rod1) - 2}px`;
+                        Rod2.style.left = `${getleftDist(Rod2) - 2}px`;
+                        //console.log('Left');
+                    }
+                    else if(rightPress && (getleftDist(Rod1) + getwidth(Rod1)/2) < (screen.width-2)){
+                        Rod1.style.left = `${getleftDist(Rod1) + 2}px`;
+                        Rod2.style.left = `${getleftDist(Rod2) + 2}px`;
+                        //console.log('Right');
+                    }
+
+                    ball.style.left = `${getleftDist(ball) + Vx}px`;
+                    if((getleftDist(ball) + getwidth(ball)) > (screen.width) || getleftDist(ball) < getwidth(ball)){
+                        Vx = -Vx;
+                    }
+
+                    ball.style.top = `${gettopDist(ball) + Vy}px`;
+                    if(gettopDist(ball) >= (gettopDist(Rod2))){
+                        if(collision(Rod2, ball)){
+                            Vy = -Vy;
+                            rod2pts++;
+                        }else{
+                            gameLost();
+                        }
+                    }
+                    if((gettopDist(ball) - getheight(ball)) <= (getheight(Rod1) + gettopDist(Rod1))){
+                        if(collision(Rod1, ball)){
+                            Vy = -Vy;
+                            rod1pts++;
+                        }
+                        else{
+                            gameLost();
+                        }
+                    }
+                }
+                
+        },5);
+        }
+        
+        gameplay();
+    </script>
+</body>
+</html>
